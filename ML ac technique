@@ -1,0 +1,45 @@
+// A Machine Learning ac technique 
+
+#include <iostream>
+#include <vector>
+#include <cmath>
+
+// MLmodel
+class MLModel {
+public:
+    bool detectCheating(const std::vector<double>& features) {
+        double sum = 0;
+        for (double feature : features) {
+            sum += feature;
+        }
+        double avg = sum / features.size();
+        return avg > 0.8; // put any suitable number 
+    }
+};
+
+// Example ( use your own features such as reaction/ accuracy.
+class Player {
+public:
+    std::vector<double> getFeatures() {
+        // reaction, accuracy (EX)
+        return {0.7, 0.9, 0.8}; 
+    }
+};
+
+int main() {
+    Player player;
+    std::vector<double> playerFeatures = player.getFeatures();
+
+    MLModel model;
+    bool isCheating = model.detectCheating(refer to example features above);
+
+    if (isCheating) {
+        std::cout << "Warning - Cheating detected!" << std::endl;
+        // Terminate game or take appropriate action.
+    } else {
+        std::cout << "No cheating behavior detected." << std::endl;
+        // Continue game execution.
+    }
+
+    return 0;
+}
