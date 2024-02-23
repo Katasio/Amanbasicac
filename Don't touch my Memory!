@@ -1,0 +1,35 @@
+// Memory Modification Check
+#include <iostream>
+#include <windows.h>
+
+bool isMemoryModified(const void* address, size_t size) {
+    MEMORY_BASIC_INFORMATION mbi;
+    if (VirtualQuery(address, &mbi, sizeof(mbi))) {
+        DWORD oldProtect;
+        if (VirtualProtect(mbi.BaseAddress, mbi.RegionSize, PAGE_EXECUTE_READWRITE, &oldProtect)) {
+            char buffer[size];
+            memcpy(buffer, address, size);
+            VirtualProtect(mbi.BaseAddress, mbi.RegionSize, oldProtect, &oldProtect);
+
+            for (size_t i = 0; i < size; ++i) {
+                if (buffer[i] != reinterpret_cast<const char*>(address)[i]) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+int main() {
+    int variable = 42;
+    bool isModified = isMemoryModified(&variable, sizeof(variable));
+    if (isModified) {
+        std::cout << "Warning - Memory modification detected!" << std::endl;
+        // Take appropriate action here, such as terminating the game.
+    } else {
+        std::cout << "No memory modification detected." << std::endl;
+        // Continue normal game execution.
+    }
+    return 0;
+}
