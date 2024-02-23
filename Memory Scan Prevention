@@ -1,0 +1,19 @@
+//Memory Scan Prevention 
+
+#include <iostream>
+#include <windows.h>
+
+bool isDebuggerPresent() {
+    return IsDebuggerPresent();
+}
+
+int main() {
+    if (isDebuggerPresent()) {
+        std::cout << "Warning: Debugger detected!" << std::endl;
+        // Terminate game (any action) .
+    } else {
+        std::cout << "No debugger detected." << std::endl;
+        // Continue game execution.
+    }
+    return 0;
+}
