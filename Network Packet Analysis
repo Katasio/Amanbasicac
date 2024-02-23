@@ -1,0 +1,86 @@
+// Raw network check 
+
+#include <iostream>
+#include <winsock2.h>
+
+bool isUnauthorizedDataReceived(const char* data, size_t size) {
+    // Network Packet logic 
+    // Use own keywords but for example (cheat, hack and exploit can be used)
+    const std::string unauthorizedKeywords[] = {"cheat", "hack", "exploit"};
+    for (const std::string& keyword : unauthorizedKeywords) {
+        if (std::string(data, size).find(keyword) != std::string::npos) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int main() {
+    WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        std::cerr << "Error - WSAStartup failed" << std::endl;
+        return 1;
+    }
+
+    // Create socket
+    SOCKET listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (listenSocket == INVALID_SOCKET) {
+        std::cerr << "Error - Failed to create socket" << std::endl;
+        WSACleanup();
+        return 1;
+    }
+
+    // Bind socket
+    sockaddr_in serverAddr;
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.s_addr = INADDR_ANY;
+    serverAddr.sin_port = htons(8888); // Example port number
+    if (bind(listenSocket, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) == SOCKET_ERROR) {
+        std::cerr << "Error - Bind failed" << std::endl;
+        closesocket(listenSocket);
+        WSACleanup();
+        return 1;
+    }
+
+    // Listen to incoming connections
+    if (listen(listenSocket, SOMAXCONN) == SOCKET_ERROR) {
+        std::cerr << "Error - Listen failed" << std::endl;
+        closesocket(listenSocket);
+        WSACleanup();
+        return 1;
+    }
+
+    // Accept and receive data / connections
+    while (true) {
+        sockaddr_in clientAddr;
+        int clientAddrSize = sizeof(clientAddr);
+        SOCKET clientSocket = accept(listenSocket, reinterpret_cast<sockaddr*>(&clientAddr), &clientAddrSize);
+        if (clientSocket == INVALID_SOCKET) {
+            std::cerr << "Error - Accept failed" << std::endl;
+            closesocket(listenSocket);
+            WSACleanup();
+            return 1;
+        }
+
+        char data[1024];
+        int dataSize = recv(clientSocket, data, sizeof(data), 0);
+        if (dataSize > 0) {
+            bool isUnauthorized = isUnauthorizedDataReceived(data, dataSize);
+            if (isUnauthorized) {
+                std::cout << "Warning - Unauthorized data received!" << std::endl;
+                // terminate game or anything you would find acceptable .
+            } else {
+                std::cout << "No unauthorized data received." << std::endl;
+                // Continue game execution.
+            }
+        }
+
+        closesocket(clientSocket);
+    }
+
+    // Cleanup Winsock
+    closesocket(listenSocket);
+    WSACleanup();
+
+    return 0;
+}
