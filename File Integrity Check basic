@@ -1,0 +1,45 @@
+// File Integrity Check
+#include <iostream>
+#include <fstream>
+#include <unordered_map>
+#include <string>
+#include <sstream>
+#include <iomanip>
+
+std::string calculateHash(const std::string& filePath) {
+    std::ifstream file(filePath, std::ios::binary);
+    if (!file) {
+        std::cerr << "Error: Failed to open file: " << filePath << std::endl;
+        return "";
+    }
+
+    std::ostringstream hashStream;
+    hashStream << std::hex << std::uppercase << std::setfill('0');
+    hashStream << std::hash<std::string>{}(std::string(std::istreambuf_iterator<char>(file), {}));
+    return hashStream.str();
+}
+
+void checkFileIntegrity(const std::unordered_map<std::string, std::string>& knownHashes, const std::string& filePath) {
+    if (knownHashes.find(filePath) != knownHashes.end()) {
+        std::string calculatedHash = calculateHash(filePath);
+        if (calculatedHash != knownHashes.at(filePath)) {
+            std::cout << "Warning: File integrity compromised for " << filePath << std::endl;
+            // Take action
+        }
+    } else {
+        std::cerr << "Error: File " << filePath << " not found in known hashes." << std::endl;
+        // Take  action here
+    }
+}
+
+int main() {
+    std::unordered_map<std::string, std::string> knownHashes = {
+        {"game_data.dll", "hash_of_original_game_data_dll"},
+        {"game_executable.exe", "hash_of_original_game_executable_exe"}
+    };
+
+    checkFileIntegrity(knownHashes, "game_data.dll");
+    checkFileIntegrity(knownHashes, "modified_file.dll");
+
+    return 0;
+}
