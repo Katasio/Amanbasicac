@@ -9,7 +9,7 @@
 std::string calculateHash(const std::string& filePath) {
     std::ifstream file(filePath, std::ios::binary);
     if (!file) {
-        std::cerr << "Error: Failed to open file: " << filePath << std::endl;
+        std::cerr << "Error - Failed to open file: " << filePath << std::endl;
         return "";
     }
 
@@ -27,7 +27,7 @@ void checkFileIntegrity(const std::unordered_map<std::string, std::string>& know
             // Take action
         }
     } else {
-        std::cerr << "Error: File " << filePath << " not found in known hashes." << std::endl;
+        std::cerr << "Error - File " << filePath << " not found in hashes." << std::endl;
         // Take  action here
     }
 }
