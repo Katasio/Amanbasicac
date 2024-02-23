@@ -1,0 +1,54 @@
+// Movement Check
+
+#include <iostream>
+#include <chrono>
+#include <thread>
+#include <cmath>
+
+constexpr double MAX_SPEED = 10.0; // Adjust for your own testing 
+constexpr double CHECK_INTERVAL = 1.0; // Adjust for your own testing 
+
+struct Position {
+    double x;
+    double y;
+    double z;
+};
+
+Position getPlayerPosition() {
+    // get player position
+    return {0.0, 0.0, 0.0};
+}
+
+double calculateDistance(const Position& pos1, const Position& pos2) {
+    return std::sqrt(std::pow(pos1.x - pos2.x, 2) + std::pow(pos1.y - pos2.y, 2) + std::pow(pos1.z - pos2.z, 2));
+}
+
+double calculateTimeElapsed(const std::chrono::steady_clock::time_point& startTime) {
+    auto currentTime = std::chrono::steady_clock::now();
+    return std::chrono::duration<double>(currentTime - startTime).count();
+}
+
+void detectMovementCheats() {
+    Position previousPosition;
+    std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
+
+    while (true) {
+        Position currentPosition = getPlayerPosition();
+        if (previousPosition.x != 0.0 && previousPosition.y != 0.0 && previousPosition.z != 0.0) {
+            double distance = calculateDistance(previousPosition, currentPosition);
+            double timeElapsed = calculateTimeElapsed(startTime);
+
+            if (distance / timeElapsed > MAX_SPEED) {
+                std::cout << "Warning- High movement speed detected!" << std::endl;
+                // Log or Punish.
+            }
+        }
+        previousPosition = currentPosition;
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(CHECK_INTERVAL * 1000)));
+    }
+}
+
+int main() {
+    detectMovementCheats();
+    return 0;
+}
